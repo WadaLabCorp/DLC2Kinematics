@@ -165,6 +165,11 @@ def calc_q_angle(q):
     arccos = np.arccos(cos) * 2 * (180 / np.pi)
     arcsin = np.arcsin(cos) * 2 * (180 / np.pi)
 
+    print('===============')
+    print('Cos:', cos)
+    print('Arccos:', arccos)
+    print('Arcsin:', arcsin)
+
     theta = arccos if arcsin >= 0 else -arccos
 
     return theta
@@ -189,7 +194,7 @@ def calc_q_axis(q):
     q = quat.unit_q(q)
 
     w = q[0][0]
-    denom = np.sqrt(1 - w ** 2)
+    denom = np.sqrt(1 - w**2)
 
     return np.array([q[0][1] / denom, q[0][2] / denom, q[0][3] / denom])
 
@@ -243,7 +248,7 @@ def doubleangle_calc(pos):
     z = rel[2]
     # yaw, pitch relative to the vertical plane (x-z plane)
     yaw = np.rad2deg(np.arctan2(x, z))
-    padj = np.sqrt((x ** 2) + (z ** 2))
+    padj = np.sqrt((x**2) + (z**2))
     pitch = np.arctan(padj / y) * 180.0 / np.pi
 
     return np.array([pitch, yaw])
