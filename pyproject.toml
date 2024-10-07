@@ -1,3 +1,36 @@
+[project]
+name = "dlc2kinematics"
+version = "0.0.7"
+description = "A post-deeplabcut module for kinematic analysis"
+readme = {file = "README.md", content-type = "text/markdown"}
+authors = [
+  {name = "Mackenzie Mathis Laboratory", email = "mackenzie@post.harvard.edu"}
+]
+license = { text="custom" }
+license-files = ['LICENSE']
+
+[project.dependencies]
+h5py = ">=3.1"
+c3d = ">0.5"
+ipython = "*"
+ipython-genutils = "*"
+matplotlib  = "*"
+numpy = ">=1.22"
+opencv-python = "*"
+pandas = ">=2.2"
+python-dateutil = "*"
+pyyaml = "*"
+requests = "*"
+setuptools = "*"
+scikit-image = "*"
+scikit-learn = "*"
+scikit-kinematics = "*"
+tables = "*"
+scipy = "*"
+umap-learn = "*"
+ruamel-yaml = ">=0.15.0"
+
+
 [build-system]
 requires = ["setuptools", "wheel", "setuptools_scm"]
 build-backend = "setuptools.build_meta"
