@@ -7,7 +7,6 @@ authors = [
   {name = "Mackenzie Mathis Laboratory", email = "mackenzie@post.harvard.edu"}
 ]
 license = { file = "LICENSE" }
-
 dependencies = [
   "h5py>=3.1",
   "c3d>0.5",
@@ -29,6 +28,7 @@ dependencies = [
   "umap-learn",
   "ruamel-yaml>=0.15.0"
 ]
+requires-python = ">=3.8"
 
 
 [build-system]
