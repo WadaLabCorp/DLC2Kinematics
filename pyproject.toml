@@ -7,6 +7,16 @@ authors = [
   {name = "Mackenzie Mathis Laboratory", email = "mackenzie@post.harvard.edu"}
 ]
 license = { file = "LICENSE" }
+classifiers = [
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Scientific/Engineering :: Image Processing",
+    "Topic :: Scientific/Engineering :: Visualization"
+]
 dependencies = [
   "h5py",
   "c3d>0.5",
@@ -30,6 +40,11 @@ dependencies = [
 ]
 requires-python = ">=3.8"
 
+[project.urls]
+"Bug Tracker" = "https://github.com/AdaptiveMotorControlLab/DLC2Kinematics/issues"
+"Documentation" = "https://github.com/AdaptiveMotorControlLab/DLC2Kinematics"
+"Source Code" = "https://github.com/AdaptiveMotorControlLab/DLC2Kinematics"
+"User Support" = "https://github.com/AdaptiveMotorControlLab/DLC2Kinematics/issues"
 
 [build-system]
 requires = ["setuptools", "wheel", "setuptools_scm"]
