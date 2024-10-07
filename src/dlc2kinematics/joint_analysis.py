@@ -104,7 +104,7 @@ def compute_joint_angles(
             cols.iloc[mask, :2] = np.nan
             return cols
 
-        df = df.groupby("bodyparts", axis=1, group_keys=False).apply(filter_low_prob, prob=pcutoff)
+        df = df.T.groupby("bodyparts", group_keys=False).apply(filter_low_prob, prob=pcutoff)
 
     angle_names = list(joints_dict)
     if not destfolder:
@@ -131,7 +131,7 @@ def compute_joint_angles(
             print(f"Computing joint angles for {joint}")
             if is_multianimal:
                 temp = df.loc(axis=1)[:, :, bpts]
-                for animal, frame in temp.groupby(level="individuals", axis=1):
+                for animal, frame in temp.T.groupby(level="individuals"):
                     angles[f"{joint}_{animal}"] = frame.apply(
                         auxiliaryfunctions.jointangle_calc, axis=1
                     ).values
