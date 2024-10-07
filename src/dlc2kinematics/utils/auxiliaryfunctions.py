@@ -161,11 +161,11 @@ def calc_q_angle(q):
     q = quat.unit_q(q)
 
     cos = q[0][0]
-    sin = q[0][1]
 
     arccos = np.arccos(cos) * 2 * (180 / np.pi)
+    arcsin = np.arcsin(cos) * 2 * (180 / np.pi)
 
-    theta = arccos if sin >= 0 else -arccos
+    theta = arccos if arcsin >= 0 else -arccos
 
     return theta
 
