@@ -160,13 +160,12 @@ def calc_q_angle(q):
     """
     q = quat.unit_q(q)
 
-    arccos = np.arccos(q[0][0]) * 2 * (180 / np.pi)
-    arcsin = np.arcsin(q[0][1]) * 2 * (180 / np.pi)
+    cos = q[0][0]
+    sin = q[0][1]
 
-    if arccos < 0:
-        theta = arcsin
-    else:
-        theta = arccos
+    arccos = np.arccos(cos) * 2 * (180 / np.pi)
+
+    theta = arccos if sin >= 0 else -arccos
 
     return theta
 
