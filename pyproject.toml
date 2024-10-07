@@ -6,8 +6,7 @@ readme = {file = "README.md", content-type = "text/markdown"}
 authors = [
   {name = "Mackenzie Mathis Laboratory", email = "mackenzie@post.harvard.edu"}
 ]
-license = { text="custom" }
-license-files = ['LICENSE']
+license = { file = "LICENSE" }
 
 dependencies = [
   "h5py>=3.1",
