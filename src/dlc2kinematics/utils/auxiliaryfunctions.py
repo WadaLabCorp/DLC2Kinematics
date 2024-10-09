@@ -108,112 +108,6 @@ def smooth(df, dataFrame, pdindex, bp, columns, filter_window, order, axis=0, de
 
     return dataFrame
 
-def signed_angle(v1,v2):
-    '''Angle between two vectors
-    
-    Parameters
-    ----------
-    v1 : array (N,) or (M,N)
-        vector 1
-    v2 : array (N,) or (M,N)
-        vector 2
-
-    Returns
-    -------
-    angle : double or array(M,)
-        angle between v1 and v2
-
-
-    .. image:: ../docs/Images/vector_angle.png
-        :scale: 33%
-
-    Example
-    -------
-    >>> v1 = np.array([[1,2,3],
-    >>>       [4,5,6]])
-    >>> v2 = np.array([[1,0,0],
-    >>>       [0,1,0]])
-    >>> skinematics.vector.angle(v1,v2)
-    array([ 1.30024656,  0.96453036])
-    
-    Notes
-    -----
-
-    .. math::
-        \\alpha =arccos(\\frac{\\vec{v_1} \\cdot \\vec{v_2}}{| \\vec{v_1} |
-        \\cdot | \\vec{v_2}|})
-    '''
-
-    
-    # make sure lists are handled correctly
-    v1 = np.array(v1)
-    v2 = np.array(v2)
-    
-    if v1.ndim < v2.ndim:
-        v1, v2 = v2, v1
-    n1 = vector.normalize(v1)
-    n2 = vector.normalize(v2)
-    dot = np.dot(n1, n2)
-    if v2.ndim == 1:
-        sign = np.arcsin(dot)
-        angle = np.arccos(dot)
-        if sign < 0:
-            angle = -angle
-    else:
-        angle = np.arccos(list(map(np.dot, n1, n2)))
-    return angle
-
-def q_signed_shortest_rotation(v1, v2):
-    """Quaternion indicating the shortest rotation from one vector into another.
-    You can read "qrotate" as either "quaternion rotate" or as "quick
-    rotate".
-
-    Parameters
-    ----------
-    v1 : ndarray (3,)
-        first vector
-    v2 : ndarray (3,)
-        second vector
-
-    Returns
-    -------
-    q : ndarray (3,)
-        quaternion rotating v1 into v2
-
-
-    .. image:: ../docs/Images/vector_q_shortest_rotation.png
-        :scale: 33%
-
-    Example
-    -------
-    >>> v1 = np.r_[1,0,0]
-    >>> v2 = np.r_[1,1,0]
-    >>> q = qrotate(v1, v2)
-    >>> print(q)
-    [ 0.          0.          0.38268343]
-    """
-
-    # calculate the direction
-    n = vector.normalize(np.cross(v1, v2))
-
-    # make sure vectors are handled correctly
-    n = np.atleast_2d(n)
-
-    # handle 0-quaternions
-    nanindex = np.isnan(n[:, 0])
-    n[nanindex, :] = 0
-
-    # find the angle, and calculate the quaternion
-    angle12 = signed_angle(v1, v2)
-    print(angle12)
-    q = (n.T * np.sin(angle12 / 2.0)).T
-
-    # if you are working with vectors, only return a vector
-    if q.shape[0] == 1:
-        q = q.flatten()
-
-    return q
-
 
 def jointquat_calc(pos, use4d=False):
     """Returns the quaternion of shortest rotation at a joint given position of keypoints
@@ -241,7 +135,7 @@ def jointquat_calc(pos, use4d=False):
     v = pos[1, :] - pos[2, :]
     # print(u.shape)
     # print(v.shape)
-    q_shortest_rotation = q_signed_shortest_rotation(u.astype(float), v.astype(float))
+    q_shortest_rotation = vector.q_shortest_rotation(u.astype(float), v.astype(float))
     # print(q_shortest_rotation)
     if use4d:
         q_shortest_rotation = quat.unit_q(q_shortest_rotation)
@@ -266,13 +160,7 @@ def calc_q_angle(q):
     """
     q = quat.unit_q(q)
 
-    cos = q[0][0]
-
-    arccos = np.arccos(cos) * 2 * (180 / np.pi)
-    arcsin = np.arcsin(cos) * 2 * (180 / np.pi)
-
-    theta = arccos if arcsin >= 0 else -arccos
-
+    theta = np.arccos(q[0][0]) * 2 * (180 / np.pi)
     return theta
 
 
@@ -300,6 +188,37 @@ def calc_q_axis(q):
     return np.array([q[0][1] / denom, q[0][2] / denom, q[0][3] / denom])
 
 
+def signed_angle(v1, v2):
+    # make sure lists are handled correctly
+    v1 = np.array(v1)
+    v2 = np.array(v2)
+
+    if v1.ndim < v2.ndim:
+        v1, v2 = v2, v1
+
+    def _signed_ang(n1, n2):
+        dot = np.dot(n1, n2)
+        arccos = np.arccos(dot)
+        ang_n1 = np.arctan2(n1[1], n1[0])
+        ang_n2 = np.arctan2(n2[1], n2[0])
+        tanang = ang_n2 - ang_n1
+        return ang_n2 - ang_n1 if abs(arccos) > abs(tanang) else arccos
+
+    n1 = vector.normalize(v1)
+    n2 = vector.normalize(v2)
+    print("n1: ", n1)
+    print("n2: ", n2)
+    if v2.ndim == 1:
+        angle = _signed_ang(n1, n2)
+    else:
+        raise ValueError("v2 must be a 1D array")
+    return angle
+
+
+def rad_to_degree(rad):
+    return rad * 180 / np.pi
+
+
 def jointangle_calc(pos):
     """Return the joint angle given position of keypoints
 
@@ -314,11 +233,31 @@ def jointangle_calc(pos):
     angle : float
 
     """
-    q_shortest_rotation = jointquat_calc(pos)
-    #     turns a quaternion vector into a unit quaternion
-    unit = quat.unit_q(q_shortest_rotation)
-    angle = calc_q_angle(unit)
-    return angle
+    pos = pos.values
+    # print(pos)
+    pos = pos.reshape((3, 3))
+    # print(pos)
+    u = pos[1, :] - pos[0, :]
+    v = pos[1, :] - pos[2, :]
+    # print(u.shape)
+    # print(v.shape)
+
+    v1 = u.astype(float)
+    v2 = v.astype(float)
+
+    # calculate the direction
+    n = vector.normalize(np.cross(v1, v2))
+
+    # make sure vectors are handled correctly
+    n = np.atleast_2d(n)
+
+    # handle 0-quaternions
+    nanindex = np.isnan(n[:, 0])
+    n[nanindex, :] = 0
+
+    # find the angle, and calculate the quaternion
+    angle12 = signed_angle(v1, v2)
+    return rad_to_degree(angle12)
 
 
 def doubleangle_calc(pos):
