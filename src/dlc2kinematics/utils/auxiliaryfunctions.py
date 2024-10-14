@@ -197,12 +197,8 @@ def signed_angle(v1, v2):
         v1, v2 = v2, v1
 
     def _signed_ang(n1, n2):
-        dot = np.dot(n1, n2)
-        arccos = np.arccos(dot)
-        ang_n1 = np.arctan2(n1[1], n1[0])
-        ang_n2 = np.arctan2(n2[1], n2[0])
-        tanang = ang_n2 - ang_n1
-        return ang_n2 - ang_n1 + np.pi * 2 if abs(arccos) > abs(tanang) else arccos
+        angle = np.arctan2(n2[1], n2[0]) - np.arctan2(n1[1], n1[0])
+        return (angle) % (2 * np.pi)
 
     n1 = vector.normalize(v1)
     n2 = vector.normalize(v2)
